@@ -7,9 +7,10 @@
 extents = Vector2( 32, 32 )
 
 [node name="DemoWorld" type="Node2D"]
+position = Vector2( 1.05945, -20.1298 )
 
 [node name="player_body" parent="." instance=ExtResource( 2 )]
-position = Vector2( -30.9543, -7.93701 )
+position = Vector2( 34.5616, -22.4261 )
 
 [node name="Block" type="Sprite" parent="."]
 modulate = Color( 0, 0, 0, 1 )
@@ -68,13 +69,24 @@ shape = SubResource( 1 )
 
 [node name="Block6" type="Sprite" parent="."]
 modulate = Color( 0, 0, 0, 1 )
-position = Vector2( 863.667, 81.0255 )
+position = Vector2( 857.367, 98.6644 )
 scale = Vector2( 3.78738, 1.22122 )
 texture = ExtResource( 1 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Block6"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Block6/StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Block10" type="Sprite" parent="."]
+modulate = Color( 0, 0, 0, 1 )
+position = Vector2( 685.388, 64.6465 )
+scale = Vector2( 3.78738, 1.22122 )
+texture = ExtResource( 1 )
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Block10"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Block10/StaticBody2D"]
 shape = SubResource( 1 )
 
 [node name="Block7" type="Sprite" parent="."]
@@ -101,7 +113,8 @@ shape = SubResource( 1 )
 
 [node name="Block9" type="Sprite" parent="."]
 modulate = Color( 0, 0, 0, 1 )
-position = Vector2( 1244.74, 99.54 )
+position = Vector2( 1060.59, 13.3512 )
+rotation = 1.00832
 scale = Vector2( 3.78738, 1.22122 )
 texture = ExtResource( 1 )
 
