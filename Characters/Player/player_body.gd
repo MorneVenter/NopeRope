@@ -94,12 +94,12 @@ func _setBodyRotation():
 		rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.1)
 
 func _computeNormAngle():
-	var plane = int(abs(rotation_degrees)/45)
-	if plane == 7:
+	var plane = int(abs(rotation_degrees)/22.5)
+	if plane == 15:
 		plane = 0
 	elif plane % 2 == 1:
-		plane += 1
-	var ans = plane*45.0
+		plane += 2
+	var ans = plane*22.5
 	if rotation_degrees < 0:
 		ans = -ans		
 	return ans

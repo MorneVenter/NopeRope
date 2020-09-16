@@ -85,12 +85,12 @@ cast_to = Vector2( 0, 35 )
 [node name="RightWallRotateCheck" type="RayCast2D" parent="."]
 position = Vector2( 15, 7.28381 )
 enabled = true
-cast_to = Vector2( 16, 0 )
+cast_to = Vector2( 20, 0 )
 
 [node name="LeftWallRotateCheck" type="RayCast2D" parent="."]
 position = Vector2( -15.1453, 7.68111 )
 enabled = true
-cast_to = Vector2( -16, 0 )
+cast_to = Vector2( -20, 0 )
 
 [node name="PlayerCamera" type="Camera2D" parent="."]
 current = true
