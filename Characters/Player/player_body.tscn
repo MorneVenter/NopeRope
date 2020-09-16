@@ -83,12 +83,12 @@ enabled = true
 cast_to = Vector2( 0, 35 )
 
 [node name="RightWallRotateCheck" type="RayCast2D" parent="."]
-position = Vector2( 15, 0 )
+position = Vector2( 15, 7.28381 )
 enabled = true
 cast_to = Vector2( 16, 0 )
 
 [node name="LeftWallRotateCheck" type="RayCast2D" parent="."]
-position = Vector2( -15.1453, 0 )
+position = Vector2( -15.1453, 7.68111 )
 enabled = true
 cast_to = Vector2( -16, 0 )
 
