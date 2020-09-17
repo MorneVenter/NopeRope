@@ -18,25 +18,31 @@ one_way_collision_margin = 0.0
 position = Vector2( 0, -6.23629 )
 
 [node name="player_leg" parent="Right_Legs" instance=ExtResource( 2 )]
+rotation = 1.01404
 
 [node name="player_leg2" parent="Right_Legs" instance=ExtResource( 2 )]
 position = Vector2( 5, 0 )
+rotation = 1.01578
 
 [node name="player_leg3" parent="Right_Legs" instance=ExtResource( 2 )]
 position = Vector2( 7.5, 0 )
+rotation = 1.39626
 
 [node name="Left_Legs" type="Node2D" parent="."]
 position = Vector2( 0, -6.23629 )
 
 [node name="player_leg" parent="Left_Legs" instance=ExtResource( 2 )]
+rotation = -4.31445
 flipped = false
 
 [node name="player_leg2" parent="Left_Legs" instance=ExtResource( 2 )]
 position = Vector2( -5, 0 )
+rotation = -4.18879
 flipped = false
 
 [node name="player_leg3" parent="Left_Legs" instance=ExtResource( 2 )]
 position = Vector2( -7.5, 0 )
+rotation = -4.44186
 flipped = false
 
 [node name="Sprite" type="Sprite" parent="."]
@@ -91,6 +97,3 @@ cast_to = Vector2( 20, 0 )
 position = Vector2( -15.1453, 7.68111 )
 enabled = true
 cast_to = Vector2( -20, 0 )
-
-[node name="PlayerCamera" type="Camera2D" parent="."]
-current = true

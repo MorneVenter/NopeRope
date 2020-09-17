@@ -19,6 +19,10 @@ config/name="NopeRope"
 run/main_scene="res://World/DemoWorld.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+EventSystem="*res://Utility/EventSystem.gd"
+
 [display]
 
 window/size/width=480

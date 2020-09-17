@@ -14,8 +14,8 @@ onready var right_wall_rotate_check = $RightWallRotateCheck
 onready var right_legs = $Right_Legs.get_children()
 onready var left_legs = $Left_Legs.get_children()
 
-export var speed_y = 40
-var step_rate = 0.2 # Good speed for 0.2 is 30, that means step_rate = 150/speed
+var speed_y = 40
+var step_rate = 0.02 # Good speed for 0.2 is 30, that means step_rate = 150/speed
 var time_since_last_step = 0
 var cur_r_leg = 0
 var cur_l_leg = 0
@@ -23,11 +23,14 @@ var use_right = false
 var leg_dist = 45
 
 var is_moving = false
-var speed_limit = 100
+var speed_limit = 150
 var accel = 1.75
-var speed_x = 100 #same as limit to init leg position
+var speed_x = 150 #same as limit to init leg position
 
 func _ready():
+	pass#init()
+
+func init():
 	leg_dist = $RightCheck.position.x / (right_legs.size())
 	right_check.force_raycast_update()
 	left_check.force_raycast_update()
@@ -56,6 +59,8 @@ func _process(delta):
 		if time_since_last_step >= step_rate:
 			time_since_last_step = 0
 			step()
+	if Input.is_action_pressed("ui_select"):
+		_jump()
 
 func _move(delta, speed_x):
 	if speed_x == 0:
@@ -82,14 +87,14 @@ func _setBodyRotation():
 		elif right_wall_rotate_check.is_colliding():
 			rotation_degrees -= 5.0
 		else:
-			rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.1)
+			rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.05)
 	elif speed_x < 0:
 		if !(left_rotate_check.is_colliding()):
 			rotation_degrees -= 5.0
 		elif left_wall_rotate_check.is_colliding():
 			rotation_degrees += 5.0
 		else:
-			rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.1)
+			rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.05)
 	else:
 		rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.1)
 
@@ -139,3 +144,6 @@ func step():
 	else:
 		rate = abs((leg_dist+reach)/speed_x)
 	leg.step(target, rate)
+
+func _jump():
+	EventSystem.emit_signal("jump", position.x, position.y, _computeNormAngle()+90.0)
