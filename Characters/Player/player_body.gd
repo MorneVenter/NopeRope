@@ -1,21 +1,21 @@
 extends KinematicBody2D
 
-onready var right_check = $RightCheck
-onready var low_mid_check = $LowMidCheck
-onready var high_mid_check = $HighMidCheck
-onready var left_check = $LeftCheck
-onready var left_lift_check = $LiftCheckLeft
-onready var right_lift_check = $LiftCheckRight
-onready var right_rotate_check = $RightRotateCheck
-onready var left_rotate_check = $LeftRotateCheck
-onready var left_wall_rotate_check = $LeftWallRotateCheck
-onready var right_wall_rotate_check = $RightWallRotateCheck
+onready var right_check = $CollisionShape/RightCheck
+onready var low_mid_check = $CollisionShape/LowMidCheck
+onready var high_mid_check = $CollisionShape/HighMidCheck
+onready var left_check = $CollisionShape/LeftCheck
+onready var left_lift_check = $CollisionShape/LiftCheckLeft
+onready var right_lift_check = $CollisionShape/LiftCheckRight
+onready var right_rotate_check = $CollisionShape/RightRotateCheck
+onready var left_rotate_check = $CollisionShape/LeftRotateCheck
+onready var left_wall_rotate_check = $CollisionShape/LeftWallRotateCheck
+onready var right_wall_rotate_check = $CollisionShape/RightWallRotateCheck
 
 onready var right_legs = $Right_Legs.get_children()
 onready var left_legs = $Left_Legs.get_children()
 
 var speed_y = 40
-var step_rate = 0.02 # Good speed for 0.2 is 30, that means step_rate = 150/speed
+var step_rate = 0.02
 var time_since_last_step = 0
 var cur_r_leg = 0
 var cur_l_leg = 0
@@ -24,91 +24,123 @@ var leg_dist = 45
 
 var is_moving = false
 var speed_limit = 150
-var accel = 1.75
+var accel = 2.2
 var speed_x = 150 #same as limit to init leg position
 
-func _ready():
-	pass#init()
+var is_in_transition = false
+var degrees_to_transition = 0.0
+var position_to_transition = Vector2()
+var x_dir = 1
+
 
 func init():
-	leg_dist = $RightCheck.position.x / (right_legs.size())
+	leg_dist = $CollisionShape/RightCheck.position.x / (right_legs.size())
 	right_check.force_raycast_update()
 	left_check.force_raycast_update()
 	for i in range(6):
 		step()
 
 func _physics_process(delta):
-	if Input.is_action_pressed("ui_right"):
-		if speed_x < 0:
-			speed_x = accel
-		speed_x = speed_limit if speed_x >= speed_limit else speed_x+accel
-		_move(delta, speed_x)
-	elif Input.is_action_pressed("ui_left"):
-		if speed_x > 0:
-			speed_x = -accel
-		speed_x = -speed_limit if speed_x <= -speed_limit else speed_x-accel
-		_move(delta, speed_x)
-	else:
-		is_moving = false
-		speed_x = 0
+	if not(is_in_transition):
+		_moveBody(delta)
+	elif is_in_transition:
+		transition_process()
 
 func _process(delta):
-	_setBodyRotation()
 	if is_moving:
 		time_since_last_step += delta
 		if time_since_last_step >= step_rate:
 			time_since_last_step = 0
 			step()
-	if Input.is_action_pressed("ui_select"):
-		_jump()
 
-func _move(delta, speed_x):
-	if speed_x == 0:
-		speed_x = accel
-	is_moving = true
-	step_rate = abs(leg_dist/speed_x)
-	var move_vect = Vector2(speed_x, 0)
-	
-	if high_mid_check.is_colliding():
-		move_vect.y = -speed_y
-	elif !low_mid_check.is_colliding():
-		move_vect.y = speed_y
-	
-	if left_lift_check.is_colliding() or right_lift_check.is_colliding():
-		move_vect.y = -speed_y
-		
-	move_and_collide(move_vect.rotated(deg2rad(rotation_degrees)) * delta)
+	if not(is_in_transition):
+		_setBodyRotation()
+		if Input.is_action_just_pressed("player_jump"):
+			_jump()
 
-			
-func _setBodyRotation():
-	if speed_x > 0:
-		if !(right_rotate_check.is_colliding()):
-			rotation_degrees += 5.0
-		elif right_wall_rotate_check.is_colliding():
-			rotation_degrees -= 5.0
-		else:
-			rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.05)
-	elif speed_x < 0:
-		if !(left_rotate_check.is_colliding()):
-			rotation_degrees -= 5.0
-		elif left_wall_rotate_check.is_colliding():
-			rotation_degrees += 5.0
-		else:
-			rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.05)
+func transition_process():
+	if !(round(rotation_degrees) == degrees_to_transition and round(position.x) == round(position_to_transition.x)  and round(position.y) == round(position_to_transition.y)):
+		position = lerp(position, position_to_transition, 0.25)
+		rotation_degrees = lerp(rotation_degrees, degrees_to_transition, 0.25)
 	else:
-		rotation_degrees = lerp(rotation_degrees, _computeNormAngle(), 0.1)
+		rotation_degrees = round(degrees_to_transition)
+		position = position_to_transition
+		speed_x = speed_limit/2.0
+		for i in range(6):
+			step()
+		is_in_transition = false
+
+func _setBodyRotation():
+	if is_moving:
+		if !(right_rotate_check.is_colliding()):
+			#rotate +90 and move down
+			is_in_transition = true
+			degrees_to_transition = round(rotation_degrees + 90.0)
+			var xcor = 1.0
+			var ycor = 1.0
+			if rotation_degrees == -90.0:
+				ycor = -1.0
+			elif rotation_degrees == 90.0:
+				xcor = -1.0
+			elif abs(round(rotation_degrees)) == 180.0:
+				xcor = -1.0
+				ycor = -1.0
+			position_to_transition = Vector2(position.x + (40.0*xcor), position.y + (40.0*ycor))
+		elif !(left_rotate_check.is_colliding()):
+			#rotate -90 and move down
+			is_in_transition = true
+			degrees_to_transition = round(rotation_degrees - 90.0)
+			var xcor = 1.0
+			var ycor = 1.0
+			if rotation_degrees == -90.0:
+				xcor = -1.0
+			elif rotation_degrees == 90.0:
+				ycor = -1.0
+			elif abs(round(rotation_degrees)) == 180.0:
+				xcor = -1.0
+				ycor = -1.0
+			position_to_transition = Vector2(position.x - (40.0*xcor), position.y + (40.0*ycor))
+		elif right_wall_rotate_check.is_colliding():
+			#rotate -90 and move up
+			is_in_transition = true
+			degrees_to_transition = round(rotation_degrees - 90.0)
+			var xcor = 1.0
+			var ycor = 1.0
+			if rotation_degrees == -90.0:
+				xcor = -1.0
+			elif rotation_degrees == 90.0:
+				ycor = -1.0
+			elif abs(round(rotation_degrees)) == 180.0:
+				xcor = -1.0
+				ycor = -1.0
+			position_to_transition = Vector2(position.x + (10.0*xcor), position.y - (10.0*ycor))
+		elif left_wall_rotate_check.is_colliding():
+			#rotate +90 and move up
+			is_in_transition = true
+			degrees_to_transition = round(rotation_degrees + 90.0)
+			var xcor = 1.0
+			var ycor = 1.0
+			if rotation_degrees == -90.0:
+				ycor = -1.0
+			elif rotation_degrees == 90.0:
+				xcor = -1.0
+			elif abs(round(rotation_degrees)) == 180.0:
+				xcor = -1.0
+				ycor = -1.0
+			position_to_transition = Vector2(position.x - (10.0*xcor), position.y - (10.0*ycor))
+
 
 func _computeNormAngle():
-	var plane = int(abs(rotation_degrees)/22.5)
-	if plane == 15:
+	var plane = int(abs(rotation_degrees)/45.0)
+	if plane == 7:
 		plane = 0
 	elif plane % 2 == 1:
-		plane += 2
-	var ans = plane*22.5
+		plane += 1
+	var ans = plane*45.0
 	if rotation_degrees < 0:
-		ans = -ans		
+		ans = -ans
 	return ans
-	
+
 	
 func step():
 	var leg = null
@@ -126,13 +158,11 @@ func step():
 	
 	use_right = !use_right
 	var target = sensor.get_collision_point()
-	var reach = rand_range(1.0,20.0)
-	if speed_x < 0:
-		reach = -reach
+	var reach = rand_range(1.0,20.0) * x_dir
 	var ang = _computeNormAngle()
 	if ang == 0.0:
 		target.x += reach
-	elif ang == 180.0 or ang == -180.0:
+	if ang == 180.0 or ang == -180.0:
 		target.x -= reach
 	elif ang == -90.0:
 		target.y -= reach
@@ -143,7 +173,51 @@ func step():
 		rate = abs((leg_dist+reach)/0.1)
 	else:
 		rate = abs((leg_dist+reach)/speed_x)
-	leg.step(target, rate)
+	var upsidedown = false
+	if round(abs(rotation_degrees)) == 180.0:
+		upsidedown = true
+	leg.step(target, rate, upsidedown)
 
 func _jump():
 	EventSystem.emit_signal("jump", position.x, position.y, _computeNormAngle()+90.0)
+	
+func _moveBody(delta):
+	
+	var moveVect = Vector2();
+	if Input.is_action_pressed("player_right"):
+		moveVect.x += 1.0
+	elif Input.is_action_pressed("player_left"):
+		moveVect.x -= 1.0
+	elif Input.is_action_pressed("player_up"):
+		moveVect.y -= 1.0
+	elif Input.is_action_pressed("player_down"):
+		moveVect.y += 1.0
+	var norm_angle = _computeNormAngle()
+	moveVect = moveVect.rotated(deg2rad(norm_angle))
+	if norm_angle == 90.0 or norm_angle == -90.0:
+		moveVect *= -1
+	
+	if moveVect != Vector2.ZERO:
+		is_moving = true
+		speed_x = speed_limit if abs(speed_x) >= speed_limit else abs(speed_x)+accel
+		step_rate = abs(leg_dist/speed_x)
+		x_dir = moveVect.x
+		moveVect *= speed_x
+		var origin = high_mid_check.global_transform.origin
+		var collision_point = high_mid_check.get_collision_point()
+		var distance = origin.distance_to(collision_point)
+		if distance >= 22.0 and moveVect.y < 0.0:
+			moveVect.y = 0.0
+		if !high_mid_check.is_colliding():
+			moveVect.y = 5.0*speed_y
+		if left_lift_check.is_colliding() or right_lift_check.is_colliding():
+			moveVect.y = -speed_y*5.0
+		
+		moveVect = moveVect.rotated(deg2rad(norm_angle))
+		move_and_collide(moveVect  * delta)
+	else:
+		if !high_mid_check.is_colliding():
+			moveVect.y = 5.0*speed_y
+			move_and_collide(moveVect.rotated(deg2rad(norm_angle))  * delta)
+		is_moving = false
+		speed_x = 0

@@ -5,9 +5,9 @@ var jump_power = 250.0
 
 
 func _physics_process(delta):
-	if Input.is_action_pressed("ui_right") and abs(linear_velocity.x) <= 150.0:
+	if Input.is_action_pressed("player_right") and abs(linear_velocity.x) <= 150.0:
 		linear_velocity.x += x_speed
-	elif Input.is_action_pressed("ui_left") and abs(linear_velocity.x) <= 150.0:
+	elif Input.is_action_pressed("player_left") and abs(linear_velocity.x) <= 150.0:
 		linear_velocity.x -= x_speed
 	
 	if $RightCheck.is_colliding():

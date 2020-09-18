@@ -44,7 +44,7 @@ func _process(delta):
 	update_ik(target_pos)
 
 
-func step(g_pos, step_r):
+func step(g_pos, step_r, upsidedown):
 	step_rate = step_r
 	if(goal_pos == g_pos):
 		return
@@ -53,10 +53,12 @@ func step(g_pos, step_r):
 	var highest = goal_pos.y
 	if hand_pos.y < highest:
 		highest = hand_pos.y
-	
 	var mid = (goal_pos.x + hand_pos.x) / 2.0
 	start_pos = hand_pos
-	int_pos = Vector2(mid, highest - step_height)
+	if !upsidedown:
+		int_pos = Vector2(mid, highest - step_height)
+	else:
+		int_pos = Vector2(mid, highest + step_height)
 	step_time = 0.0
 	
 
